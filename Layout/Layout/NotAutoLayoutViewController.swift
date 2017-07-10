@@ -24,6 +24,7 @@ class NotAutoLayoutViewController: UIViewController {
 	fileprivate lazy var logo: UIView = {
 		let image = #imageLiteral(resourceName: "logo.png")
 		let view = UIImageView(image: image)
+		view.transform = view.transform.rotated(by: .pi / 4)
 		return view
 	}()
 	
@@ -32,6 +33,7 @@ class NotAutoLayoutViewController: UIViewController {
 		segment.insertSegment(withTitle: "Intro", at: 0, animated: false)
 		segment.insertSegment(withTitle: "1", at: 1, animated: false)
 		segment.insertSegment(withTitle: "2", at: 2, animated: false)
+		segment.transform = segment.transform.rotated(by: .pi / 4)
 		return segment
 	}()
 	
@@ -92,7 +94,7 @@ extension NotAutoLayoutViewController {
 	func addSegmented() {
 		let layout = Layout.makeCustome(thatFits: .zero) { [unowned logo] (fittedSize, boundSize) -> Frame in
 			let frame = Frame(x: logo.frame.maxX + 10, from: .left,
-			                  y: logo.frame.minY, from: .top,
+			                  y: logo.identityFrame.minY, from: .top,
 			                  width: boundSize.width - logo.frame.maxX - 10 - 10,
 			                  height: fittedSize.height)
 			return frame
@@ -102,7 +104,7 @@ extension NotAutoLayoutViewController {
 	
 	func addTextLabel() {
 		let layout = Layout.makeCustome(thatFits: { [unowned segmented] _ in CGSize(width: segmented.bounds.width, height: 0) }) { [unowned segmented] (fittedSize, boundSize) -> Frame in
-			let frame = Frame(x: segmented.frame.minX, from: .left,
+			let frame = Frame(x: segmented.identityFrame.minX, from: .left,
 			                  y: segmented.frame.maxY + 10, from: .top,
 			                  width: fittedSize.width,
 			                  height: fittedSize.height)
@@ -120,6 +122,28 @@ extension NotAutoLayoutViewController {
 			return frame
 		}
 		self.layoutView.addSubview(self.separatorView, constantLayout: layout)
+	}
+	
+}
+
+extension UIView {
+	
+	fileprivate var identityFrame: CGRect {
+		
+		if self.transform.isIdentity {
+			return self.frame
+			
+		} else {
+			let anchorPoint = self.layer.anchorPoint
+			let x = self.center.x - (self.bounds.width * anchorPoint.x)
+			let y = self.center.y - (self.bounds.height * anchorPoint.y)
+			let origin = CGPoint(x: x, y: y)
+			let size = self.bounds.size
+			let frame = CGRect(origin: origin, size: size)
+			return frame
+			
+		}
+		
 	}
 	
 }
