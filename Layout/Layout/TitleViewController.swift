@@ -11,8 +11,8 @@ import NotAutoLayout
 
 class TitleViewController: UIViewController {
 	
-	fileprivate lazy var layoutView: LayoutView = {
-		let view = LayoutView()
+	fileprivate lazy var layoutView: LayoutInfoStoredView = {
+		let view = LayoutInfoStoredView()
 		view.backgroundColor = .white
 		return view
 	}()

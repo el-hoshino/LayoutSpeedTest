@@ -18,47 +18,16 @@ class NotAutoLayoutViewController: UIViewController {
 	
 	var layoutStartDate = Date()
 	
-	fileprivate lazy var layoutView: LayoutView = {
-		let view = LayoutView()
+	fileprivate lazy var notAutoLayoutView: NotAutoLayoutView = {
+		let view = NotAutoLayoutView()
 		view.backgroundColor = .white
 		view.frame = UIScreen.main.bounds
 		view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		return view
 	}()
 	
-	fileprivate lazy var logo: UIView = {
-		let image = #imageLiteral(resourceName: "logo.png")
-		let view = LogoView(image: image)
-//		view.transform = view.transform.rotated(by: .pi / 4)
-		return view
-	}()
-	
-	fileprivate lazy var segmented: UIView = {
-		let segment = SetmentedView()
-		segment.insertSegment(withTitle: "Intro", at: 0, animated: false)
-		segment.insertSegment(withTitle: "1", at: 1, animated: false)
-		segment.insertSegment(withTitle: "2", at: 2, animated: false)
-//		segment.transform = segment.transform.rotated(by: .pi / 4)
-		return segment
-	}()
-	
-	fileprivate lazy var textLabel: UIView = {
-		let view = TextLabel()
-		view.text = "Swift manual views layouting without auto layout, no magic, pure code, full control. Consise syntax, readable & chainable.\n\nSwift manual views layouting without auto layout, no magic, pure code, full control. Consise syntax, readable & chainable."
-		return view
-	}()
-	
-	fileprivate lazy var separatorView: UIView = {
-		let view = SeparatorView()
-		view.backgroundColor = UIColor(red: 0.353,
-		                               green: 0.667,
-		                               blue: 0.953,
-		                               alpha: 1.00)
-		return view
-	}()
-	
 	override func loadView() {
-		let view = self.layoutView
+		let view = self.notAutoLayoutView
 		self.view = view
 	}
 	
@@ -76,11 +45,7 @@ class NotAutoLayoutViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-		self.addLogo()
-		self.addSegmented()
-		self.addTextLabel()
-		self.addSeparatorView()
-    }
+   }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -89,48 +54,90 @@ class NotAutoLayoutViewController: UIViewController {
 	
 }
 
-extension NotAutoLayoutViewController {
+class NotAutoLayoutView: UIView {
 	
-	func addLogo() {
-		self.layoutView.nal.setupSubview(self.logo) { (wizard) in wizard
-			.makeDefaultLayout { (maker) in maker
-				.pinTopLeft(to: maker.parentView, s: .topLeft, offsetBy: CGVector(dx: 10, dy: 10))
-				.setBottomRight(to: CGPoint(x: 110, y: 110))
-			}
-			.addToParent()
+	let logo: UIView = {
+		let image = #imageLiteral(resourceName: "logo.png")
+		let view = UIImageView(image: image)
+		return view
+	}()
+	
+	let segmented: UIView = {
+		let segment = UISegmentedControl()
+		segment.insertSegment(withTitle: "Intro", at: 0, animated: false)
+		segment.insertSegment(withTitle: "1", at: 1, animated: false)
+		segment.insertSegment(withTitle: "2", at: 2, animated: false)
+		return segment
+	}()
+	
+	let textLabel: UIView = {
+		let view = UITextView()
+		view.text = "Swift manual views layouting without auto layout, no magic, pure code, full control. Consise syntax, readable & chainable.\n\nSwift manual views layouting without auto layout, no magic, pure code, full control. Consise syntax, readable & chainable."
+		return view
+	}()
+	
+	let separatorView: UIView = {
+		let view = UIView()
+		view.backgroundColor = UIColor(red: 0.353,
+		                               green: 0.667,
+		                               blue: 0.953,
+		                               alpha: 1.00)
+		return view
+	}()
+	
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		self.backgroundColor = .white
+		self.addSubview(self.logo)
+		self.addSubview(self.segmented)
+		self.addSubview(self.textLabel)
+		self.addSubview(self.separatorView)
+	}
+	
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		self.layoutLogo()
+		self.layoutSegmented()
+		self.layoutTextLabel()
+		self.layoutSeparatorView()
+	}
+	
+}
+
+extension NotAutoLayoutView {
+	
+	private func layoutLogo() {
+		self.nal.place(self.logo) { $0
+			.pinTopLeft(to: $0.parentView, s: .topLeft, offsetBy: CGVector(dx: 10, dy: 10))
+			.setBottomRight(to: CGPoint(x: 110, y: 110))
 		}
 	}
 	
-	func addSegmented() {
-		self.layoutView.nal.setupSubview(self.segmented) { (wizard) in wizard
-			.makeDefaultLayout({ (maker) in maker
-				.pinTopLeft(to: self.logo, s: .topRight, offsetBy: CGVector(dx: 10, dy: 0))
-				.pinRight(to: self.layoutView, s: .right, offsetBy: -10)
-				.fitHeight(by: 0)
-			})
-			.addToParent()
+	private func layoutSegmented() {
+		self.nal.place(self.segmented) { $0
+			.pinTopLeft(to: self.logo, s: .topRight, offsetBy: CGVector(dx: 10, dy: 0))
+			.pinRight(to: $0.parentView, s: .right, offsetBy: -10)
+			.fitHeight(by: 0)
 		}
 	}
 	
-	func addTextLabel() {
-		self.layoutView.nal.setupSubview(self.textLabel) { (wizard) in wizard
-			.makeDefaultLayout({ (maker) in maker
-				.pinTopLeft(to: self.segmented, s: .bottomLeft)
-				.pinRight(to: self.segmented, s: .right, ignoresTransform: true)
-				.fitHeight(by: 0)
-			})
-			.addToParent()
+	private func layoutTextLabel() {
+		self.nal.place(self.textLabel) { $0
+			.pinTopLeft(to: self.segmented, s: .bottomLeft)
+			.pinRight(to: self.segmented, s: .right, ignoresTransform: true)
+			.fitHeight(by: 0)
 		}
 	}
 	
-	func addSeparatorView() {
-		self.layoutView.nal.setupSubview(self.separatorView) { (wizard) in wizard
-			.makeDefaultLayout({ (maker) in maker
-				.pinTopRight(to: self.textLabel, s: .bottomRight, offsetBy: CGVector(dx: 0, dy: 10))
-				.pinLeft(to: self.logo, s: .left, ignoresTransform: true)
-				.setHeight(to: 2)
-			})
-			.addToParent()
+	private func layoutSeparatorView() {
+		self.nal.place(self.separatorView) { $0
+			.pinTopRight(to: self.textLabel, s: .bottomRight, offsetBy: CGVector(dx: 0, dy: 10))
+			.pinLeft(to: self.logo, s: .left, ignoresTransform: true)
+			.setHeight(to: 2)
 		}
 	}
 	
