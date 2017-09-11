@@ -14,23 +14,8 @@ class TitleViewController: UIViewController {
 	fileprivate lazy var layoutView: LayoutView = {
 		let view = LayoutView()
 		view.backgroundColor = .white
-		view.layoutOptimization = .sequence
 		return view
 	}()
-	
-	fileprivate let buttonLayout: Layout = Layout.makeCustom(initialFrame: { (_) -> Frame in
-		let frame = Frame(x: 0, from: .center,
-		                  y: 20, from: .top,
-		                  width: 200,
-		                  height: 50)
-		return frame
-	}, restFrame: { (lastFrame, _) -> Frame in
-		let frame = Frame(x: lastFrame.minX, from: .left,
-		                  y: lastFrame.maxY + 20, from: .top,
-		                  width: lastFrame.width,
-		                  height: lastFrame.height)
-		return frame
-	})
 	
 	override func loadView() {
 		let view = self.layoutView
@@ -68,7 +53,15 @@ extension TitleViewController {
 		button.layer.borderColor = UIColor.blue.cgColor
 		button.layer.cornerRadius = 10
 		button.addTarget(self, action: #selector(self.onButtonTapped(button:)), for: .touchUpInside)
-		self.layoutView.addSubview(button, constantLayout: self.buttonLayout)
+		
+		self.layoutView.nal.setupSubview(button) { (wizard) in wizard
+			.makeDefaultLayout({ (maker) in maker
+				.pinTopCenter(to: maker.parentView, s: .topCenter)
+				.setSize(to: CGSize(width: 200, height: 50))
+				.movingY(by: CGFloat(tag - 1) * (20 + 50) + 20)
+			})
+			.addToParent()
+		}
 		
 	}
 	

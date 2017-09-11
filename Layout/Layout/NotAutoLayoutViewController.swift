@@ -9,6 +9,11 @@
 import UIKit
 import NotAutoLayout
 
+class LogoView: UIImageView {}
+class SetmentedView: UISegmentedControl {}
+class TextLabel: UITextView {}
+class SeparatorView: UIView {}
+
 class NotAutoLayoutViewController: UIViewController {
 	
 	var layoutStartDate = Date()
@@ -23,28 +28,28 @@ class NotAutoLayoutViewController: UIViewController {
 	
 	fileprivate lazy var logo: UIView = {
 		let image = #imageLiteral(resourceName: "logo.png")
-		let view = UIImageView(image: image)
-		view.transform = view.transform.rotated(by: .pi / 4)
+		let view = LogoView(image: image)
+//		view.transform = view.transform.rotated(by: .pi / 4)
 		return view
 	}()
 	
 	fileprivate lazy var segmented: UIView = {
-		let segment = UISegmentedControl()
+		let segment = SetmentedView()
 		segment.insertSegment(withTitle: "Intro", at: 0, animated: false)
 		segment.insertSegment(withTitle: "1", at: 1, animated: false)
 		segment.insertSegment(withTitle: "2", at: 2, animated: false)
-		segment.transform = segment.transform.rotated(by: .pi / 4)
+//		segment.transform = segment.transform.rotated(by: .pi / 4)
 		return segment
 	}()
 	
 	fileprivate lazy var textLabel: UIView = {
-		let view = UITextView()
+		let view = TextLabel()
 		view.text = "Swift manual views layouting without auto layout, no magic, pure code, full control. Consise syntax, readable & chainable.\n\nSwift manual views layouting without auto layout, no magic, pure code, full control. Consise syntax, readable & chainable."
 		return view
 	}()
 	
 	fileprivate lazy var separatorView: UIView = {
-		let view = UIView()
+		let view = SeparatorView()
 		view.backgroundColor = UIColor(red: 0.353,
 		                               green: 0.667,
 		                               blue: 0.953,
@@ -87,63 +92,46 @@ class NotAutoLayoutViewController: UIViewController {
 extension NotAutoLayoutViewController {
 	
 	func addLogo() {
-		let layout = Layout.makeAbsolute(frame: CGRect(x: 10, y: 10, width: 100, height: 100))
-		self.layoutView.addSubview(self.logo, constantLayout: layout)
+		self.layoutView.nal.setupSubview(self.logo) { (wizard) in wizard
+			.makeDefaultLayout { (maker) in maker
+				.pinTopLeft(to: maker.parentView, s: .topLeft, offsetBy: CGVector(dx: 10, dy: 10))
+				.setBottomRight(to: CGPoint(x: 110, y: 110))
+			}
+			.addToParent()
+		}
 	}
 	
 	func addSegmented() {
-		let layout = Layout.makeCustome(thatFits: .zero) { [unowned logo] (fittedSize, boundSize) -> Frame in
-			let frame = Frame(x: logo.frame.maxX + 10, from: .left,
-			                  y: logo.identityFrame.minY, from: .top,
-			                  width: boundSize.width - logo.frame.maxX - 10 - 10,
-			                  height: fittedSize.height)
-			return frame
+		self.layoutView.nal.setupSubview(self.segmented) { (wizard) in wizard
+			.makeDefaultLayout({ (maker) in maker
+				.pinTopLeft(to: self.logo, s: .topRight, offsetBy: CGVector(dx: 10, dy: 0))
+				.pinRight(to: self.layoutView, s: .right, offsetBy: -10)
+				.fitHeight(by: 0)
+			})
+			.addToParent()
 		}
-		self.layoutView.addSubview(self.segmented, constantLayout: layout)
 	}
 	
 	func addTextLabel() {
-		let layout = Layout.makeCustome(thatFits: { [unowned segmented] _ in CGSize(width: segmented.bounds.width, height: 0) }) { [unowned segmented] (fittedSize, boundSize) -> Frame in
-			let frame = Frame(x: segmented.identityFrame.minX, from: .left,
-			                  y: segmented.frame.maxY + 10, from: .top,
-			                  width: fittedSize.width,
-			                  height: fittedSize.height)
-			return frame
+		self.layoutView.nal.setupSubview(self.textLabel) { (wizard) in wizard
+			.makeDefaultLayout({ (maker) in maker
+				.pinTopLeft(to: self.segmented, s: .bottomLeft)
+				.pinRight(to: self.segmented, s: .right, ignoresTransform: true)
+				.fitHeight(by: 0)
+			})
+			.addToParent()
 		}
-		self.layoutView.addSubview(self.textLabel, constantLayout: layout)
 	}
 	
 	func addSeparatorView() {
-		let layout = Layout.makeCustom { [unowned logo, unowned textLabel] (boundSize) -> Frame in
-			let frame = Frame(x: 0, from: .center,
-			                  y: max(logo.frame.maxY, textLabel.frame.maxY) + 10, from: .top,
-			                  width: boundSize.width - 20,
-			                  height: 2)
-			return frame
+		self.layoutView.nal.setupSubview(self.separatorView) { (wizard) in wizard
+			.makeDefaultLayout({ (maker) in maker
+				.pinTopRight(to: self.textLabel, s: .bottomRight, offsetBy: CGVector(dx: 0, dy: 10))
+				.pinLeft(to: self.logo, s: .left, ignoresTransform: true)
+				.setHeight(to: 2)
+			})
+			.addToParent()
 		}
-		self.layoutView.addSubview(self.separatorView, constantLayout: layout)
-	}
-	
-}
-
-extension UIView {
-	
-	fileprivate var identityFrame: CGRect {
-		
-		if self.transform.isIdentity {
-			return self.frame
-			
-		} else {
-			let anchorPoint = self.layer.anchorPoint
-			let x = self.center.x - (self.bounds.width * anchorPoint.x)
-			let y = self.center.y - (self.bounds.height * anchorPoint.y)
-			let origin = CGPoint(x: x, y: y)
-			let size = self.bounds.size
-			let frame = CGRect(origin: origin, size: size)
-			return frame
-			
-		}
-		
 	}
 	
 }

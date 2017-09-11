@@ -64,7 +64,6 @@ class PinLayoutView: UIView {
 	let logo: UIView = {
 		let image = #imageLiteral(resourceName: "logo.png")
 		let view = UIImageView(image: image)
-		view.transform = view.transform.rotated(by: .pi / 4)
 		return view
 	}()
 	
@@ -73,7 +72,6 @@ class PinLayoutView: UIView {
 		segment.insertSegment(withTitle: "Intro", at: 0, animated: false)
 		segment.insertSegment(withTitle: "1", at: 1, animated: false)
 		segment.insertSegment(withTitle: "2", at: 2, animated: false)
-		segment.transform = segment.transform.rotated(by: .pi / 4)
 		return segment
 	}()
 	
@@ -109,8 +107,8 @@ class PinLayoutView: UIView {
 		super.layoutSubviews()
 		self.logo.pin.topLeft().size(100).margin(0 + 10, 10, 10)
 		self.segmented.pin.right(of: logo, aligned: .top).right().marginHorizontal(10).height(40)
-		self.textLabel.pin.below(of: segmented, aligned: .left).right().marginTop(10).marginRight(10).sizeToFit()
-		self.separatorView.pin.below(of: logo, textLabel, aligned: .left).right(to: segmented.edge.right).marginTop(10)
+		self.textLabel.pin.below(of: segmented, aligned: .left).right().marginTop(10).marginRight(10).fitSize()
+		self.separatorView.pin.below(of: [logo, textLabel], aligned: .left).right(to: segmented.edge.right).marginTop(10)
 
 	}
 	
