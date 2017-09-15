@@ -111,14 +111,14 @@ class NotAutoLayoutView: UIView {
 extension NotAutoLayoutView {
 	
 	private func layoutLogo() {
-		self.nal.place(self.logo) { $0
+		self.nal.layout(self.logo) { $0
 			.pinTopLeft(to: $0.parentView, s: .topLeft, offsetBy: CGVector(dx: 10, dy: 10))
 			.setBottomRight(to: CGPoint(x: 110, y: 110))
 		}
 	}
 	
 	private func layoutSegmented() {
-		self.nal.place(self.segmented) { $0
+		self.nal.layout(self.segmented) { $0
 			.pinTopLeft(to: self.logo, s: .topRight, offsetBy: CGVector(dx: 10, dy: 0))
 			.pinRight(to: $0.parentView, s: .right, offsetBy: -10)
 			.fitHeight(by: 0)
@@ -126,7 +126,7 @@ extension NotAutoLayoutView {
 	}
 	
 	private func layoutTextLabel() {
-		self.nal.place(self.textLabel) { $0
+		self.nal.layout(self.textLabel) { $0
 			.pinTopLeft(to: self.segmented, s: .bottomLeft)
 			.pinRight(to: self.segmented, s: .right, ignoresTransform: true)
 			.fitHeight(by: 0)
@@ -134,7 +134,7 @@ extension NotAutoLayoutView {
 	}
 	
 	private func layoutSeparatorView() {
-		self.nal.place(self.separatorView) { $0
+		self.nal.layout(self.separatorView) { $0
 			.pinTopRight(to: self.textLabel, s: .bottomRight, offsetBy: CGVector(dx: 0, dy: 10))
 			.pinLeft(to: self.logo, s: .left, ignoresTransform: true)
 			.setHeight(to: 2)
